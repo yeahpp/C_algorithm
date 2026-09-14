@@ -1,0 +1,19 @@
+# C_algorithm 프로젝트 코드 스타일
+BasedOnStyle: LLVM
+Language: Cpp
+
+IndentWidth: 4          # 들여쓰기 4칸
+TabWidth: 4
+UseTab: Never           # 탭 대신 스페이스
+ColumnLimit: 0          # 0 = 줄 길이 때문에 임의로 줄바꿈하지 않음 (한글 주석 보호)
+
+# 함수는 { 를 다음 줄에, if/for/while 은 같은 줄에 (기존 코드 스타일)
+BreakBeforeBraces: Linux
+
+PointerAlignment: Left           # nodeDLL* p  (nodeDLL *p 아님)
+SpaceBeforeParens: ControlStatements   # if (x) 는 띄고, func(x) 는 붙임
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlignConsecutiveAssignments: false
+SortIncludes: false              # C 헤더 순서 마음대로 건드리지 않게
