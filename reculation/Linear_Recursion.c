@@ -95,7 +95,7 @@ int main()
     printf("\n");
     func5(1); // 1 2 3 4 5 4 3 2 1 
     printf("\n");
-    func6(1);
+    func6(1); //삼각형
     printf("\n"); 
     func7(1);
 
