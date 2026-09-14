@@ -76,6 +76,7 @@ void Free_nodeDLL(nodeDLL* head)
         free(curr);
         curr = nextnode;
     }
+    free(head); // 마지막으로 head 더미까지 해제
 }
 int main()
 {
@@ -94,10 +95,15 @@ int main()
         if (newnode == NULL) {
             Free_nodeDLL(head);
             head = NULL;
+            tail = NULL;
             exit(0);
         }
         Append_nodeDLL(tail, newnode); // 새 노드를 맨 뒤에 꽃음 :head -> next는 맨 처음에 삽입한 값임
         // InsertAfter(head, newnode); // 새 노드를 맨 앞에 꽃음 : head -> next는 맨 마지막에 삽입한 값임
     }
     Print_nodeDLL(head);
+
+    Free_nodeDLL(head);
+    head = NULL;
+    tail = NULL; // tail 더미도 Free_nodeDLL 에서 해제되므로 함께 NULL 로
 }
