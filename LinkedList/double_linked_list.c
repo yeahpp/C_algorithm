@@ -71,7 +71,7 @@ void Print_nodeDLL(nodeDLL* head)
 void Free_nodeDLL(nodeDLL* head)
 {
     nodeDLL* curr = head->next;
-    while (curr != head) {
+    while (curr != head) { // tail -> next는 head니까 다시 head로 돌아오는 것
         nodeDLL* nextnode = curr->next;
         free(curr);
         curr = nextnode;
