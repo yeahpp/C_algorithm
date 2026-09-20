@@ -1,109 +1,141 @@
-#include "double_linked_list.h"
+// 원형 이중 연결 리스트
+// head, tail 더미 노드 사용해서
+// head->prev = tail, tail->next = head 사용 할 수 있지만,
+// BUT tail을 사용 X head라는 노드 더미만 사용할 것
+// 더미 head 노드 하나만 사용
+// head->next : 첫 번째 데이터 노드
+// head->prev : 마지막 데이터 노드
 
-void init_HT(nodeDLL** head, nodeDLL** tail) // main에서 선언한 head와 tail값 자체가 바껴야하기 때문에, 이중포인터로 받은 것
+#include <stdio.h>
+#include <stdlib.h>
+
+// init() → 더미 head  생성 및 연결
+// Create_DLL() → 새 노드 생성
+// Append_DLL() → head -> prev -> next 삽입
+// Between_Append_DLL() -> 중간 삽입 **
+// Delete_DLL() → head->prev 인 데이터 노드 삭제
+// Between_Delete_DLL() -> 중간 삭제 **
+// Print_DLL() → head->next부터 head가 나올 떄까지 출력
+// destroy_DLL() → 데이터 노드 → head 해제
+
+typedef struct DLL {
+    int data;
+    struct DLL* next;
+    struct DLL* prev;
+} DLL;
+
+void init(DLL** head)
 {
-    *head = (nodeDLL*)calloc(1, sizeof(nodeDLL));
+    (*head) = malloc(sizeof(DLL));
     if (*head == NULL)
-        exit(0);
-    *tail = (nodeDLL*)calloc(1, sizeof(nodeDLL));
-    if (*tail == NULL) {
-        free(*head);
-        exit(0);
-    }
-
-    (*head)->next = *tail;
-    (*tail)->prev = *head;
-
-    (*head)->prev = *tail;
-    (*tail)->next = *head; // 원형
+        exit(1);
+    (*head)->data = 0;
+    (*head)->next = *head;
+    (*head)->prev = *head;
 }
 
-nodeDLL* Create_nodeDLL(data* data)
+DLL* Create_DLL()
 {
-    nodeDLL* newnode = NULL;
-    newnode = (nodeDLL*)calloc(1, sizeof(nodeDLL));
-    if (newnode != NULL) {
-        newnode->data = *data;
-    }
+    int a;
+    scanf("%d", &a);
+    DLL* newnode = malloc(sizeof(DLL));
+    if (newnode == NULL)
+        exit(1);
+    newnode->data = a;
+    newnode->next = NULL;
+    newnode->prev = NULL;
+
     return newnode;
 }
-void Between_nodeDLL(nodeDLL* A, nodeDLL* B, nodeDLL* newnode)
+
+void Between_Append_DLL(DLL* A, DLL* B, DLL* newnode)
 {
+    // head 바로 앞에 삽입이라고 할 때
+    // head -> prev는 맨 처음 새 노드를 생성할 때만 설정되고, 그 뒤로는 접근 불가기 때문에
+    // head -> next 에 새로운 노드가 생성되어도, head->prev는 바뀌지 않는다.
     A->next = newnode;
     newnode->next = B;
     newnode->prev = A;
     B->prev = newnode;
-    return;
 }
-
-void Append_nodeDLL(nodeDLL* tail, nodeDLL* newnode)
+void Append_DLL(DLL* head, DLL* newnode)
 {
-    Between_nodeDLL(tail->prev, tail, newnode);
-
+    Between_Append_DLL(head->prev, head, newnode);
     // newnode->next = tail;
     // newnode->prev = tail->prev;
     // tail->prev->next = newnode;
-    // tail -> prev = newnode;
-    return;
+    // tail->prev = newnode;
+}
+void Between_Delete_DLL(DLL* A, DLL* B)
+{
+    DLL* del = A->next;
+    A->next = B;
+    B->prev = A;
+    free(del);
 }
 
-void InsertAfter(nodeDLL* head, nodeDLL* newnode)
+void Delete_DLL(DLL* head)
 {
-    Between_nodeDLL(head, head->next, newnode);
+    if (head->next == head)
+        return; // 빈리스트라면 삭제할게 없다.
+    Between_Delete_DLL(head->prev->prev, head);
 
-    // newnode-> next = head->next;
-    // newnode->prev = head;
-    // head->next->prev = newnode;
-    // head->next = newnode;
-    return;
+    // DLL* del = tail->prev;
+    // del->prev->next = tail;
+    // tail->prev = del->prev;
+    // free(del);
+    // del = NULL; => del이 지역변수라 함수가 끝나면 어차피 사라지니까 안해도된다.
 }
 
-void Print_nodeDLL(nodeDLL* head)
+void Print_DLL(DLL* head)
 {
-    nodeDLL* curr = head->next;
-    nodeDLL* tail = head->prev;
-
-    for (; curr != tail; curr = curr->next) {
-        printf("%d %d \n", curr->data.id, curr->data.score);
+    DLL* curr = head->next;
+    while (curr != head) {
+        printf("%d->", curr->data);
+        curr = curr->next;
     }
+    printf("\n");
 }
 
-void Free_nodeDLL(nodeDLL* head)
+void destroy_DLL(DLL** head)
 {
-    nodeDLL* curr = head->next;
-    while (curr != head) { // tail -> next는 head니까 다시 head로 돌아오는 것
-        nodeDLL* nextnode = curr->next;
+    DLL* curr = (*head)->next;
+    while (curr != *head) {
+        DLL* nextNode = curr->next;
         free(curr);
-        curr = nextnode;
+
+        curr = nextNode;
     }
-    free(head); // 마지막으로 head 더미까지 해제
+    free(*head);
+    (*head) = NULL;
 }
 int main()
 {
-    nodeDLL* head = NULL;
-    nodeDLL* tail = NULL;
-    init_HT(&head, &tail);
-
-    data data = {0};
-    int n;
-    (void)freopen("data.txt", "r", stdin);
-    scanf("%d", &n);
-    for (int i = 0; i < n; ++i) {
-        nodeDLL* newnode = NULL;
-        scanf("%d %d", &data.id, &data.score);
-        newnode = Create_nodeDLL(&data);
-        if (newnode == NULL) {
-            Free_nodeDLL(head);
-            head = NULL;
-            tail = NULL;
-            exit(0);
+    int input;
+    DLL* head = NULL;
+    init(&head);
+    while (1) {
+        printf("1.삽입 2.삭제 3.출력\n");
+        scanf("%d", &input);
+        switch (input) {
+        case 1: {
+            DLL* newnode = Create_DLL();
+            Append_DLL(head, newnode);
+            break;
         }
-        Append_nodeDLL(tail, newnode); // 새 노드를 맨 뒤에 꽃음 :head -> next는 맨 처음에 삽입한 값임
-        // InsertAfter(head, newnode); // 새 노드를 맨 앞에 꽃음 : head -> next는 맨 마지막에 삽입한 값임
+        case 2:
+            Delete_DLL(head);
+            break;
+        case 3:
+            Print_DLL(head);
+            break;
+        case -1:
+            destroy_DLL(&head);
+            return 0;
+        default:
+            break;
+        }
     }
-    Print_nodeDLL(head);
 
-    Free_nodeDLL(head);
-    head = NULL;
-    tail = NULL; // tail 더미도 Free_nodeDLL 에서 해제되므로 함께 NULL 로
+    return 0;
 }
