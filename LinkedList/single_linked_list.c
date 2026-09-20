@@ -1,78 +1,113 @@
-#include "single_linked_list.h"
+// 단일 연결 리스트
 
+#include <stdio.h>
+#include <stdlib.h>
 
-nodeSLL * Create_nodeSLL(data* data) //newnode 생성후 데이터가 저장됨
+//      init()         → 리스트(head) 생성
+
+//     Create_SLL()    → 새로운 노드 생성
+//     Append_SLL()    → 생성된 노드를 리스트에 연결 (뒤에서 삽입)
+
+//     Delete_SLL()    → 마지막 노드 삭제 (뒤에서 삭제)
+//     Print_SLL()     → 리스트 출력
+
+//     destroy_SLL()   → 리스트 전체 메모리 해제
+
+typedef struct SLL {
+    int data;
+    struct SLL* next;
+} SLL;
+
+void init(SLL** head)
 {
-    nodeSLL* newnode = NULL;
-    newnode = (nodeSLL*)calloc(1,sizeof(nodeSLL));
-    if(newnode != NULL){
-         newnode->data = *data;
-    }
+    (*head) = malloc(sizeof(SLL));
+    if (*head == NULL)
+        exit(1);
+    (*head)->data = 0;
+    (*head)->next = NULL;
+}
+
+SLL* Create_SLL()
+{
+    int a;
+    scanf("%d", &a);
+    SLL* newnode = malloc(sizeof(SLL));
+    if (newnode == NULL)
+        exit(1);
+    newnode->data = a;
+    newnode->next = NULL;
     return newnode;
-   
 }
 
-void Append_nodeSLL(nodeSLL* head, nodeSLL* newnode) //head부터 시작해서, curr->next가 NULL인 곳까지 찾고 거기서 이어서 
+void Append_SLL(SLL* head, SLL* newnode)
 {
-    nodeSLL * curr = head;
-    for(; curr->next != NULL; curr = curr->next);
+    SLL* curr = head;
+    for (; curr->next != NULL; curr = curr->next)
+        ;
     curr->next = newnode;
-    return;
 }
 
-void Print_nodeSLL(nodeSLL *head)
+void Delete_SLL(SLL* head)
 {
-    nodeSLL * curr = head;
-    for(; curr !=NULL; curr = curr->next){ // curr->next !=NULL 이 아니라는 점
-        printf("%d %d\n", curr->data.id, curr->data.score);
+    if (head->next == NULL)
+        return; // head가 아무것도 연결하고 있지 않을 때
+    SLL* curr = head;
+    for (; curr->next->next != NULL; curr = curr->next)
+        ;
+    SLL* del = curr->next;
+    free(del);
+    curr->next = NULL;
+}
+
+void Print_SLL(SLL* head)
+{
+    SLL* curr = head->next;
+    while (curr != NULL) {
+        printf("%d->", curr->data);
+        curr = curr->next;
     }
-    return;
+    printf("\n");
 }
 
-void Free_nodeSLL(nodeSLL * head)
+void destroy_SLL(SLL** head)
 {
-    // if(head == NULL) return;
-    // Free_nodeSLL(head->next);
-    // free(head);
-    nodeSLL * curr = head; //head 부터 free해야하기 때문에 head->next 가 아님
-    while (curr!=NULL)
-    {
-        nodeSLL * next = curr->next;
+    SLL* curr = (*head)->next;
+    while (curr != NULL) {
+        SLL* nextNode = curr->next;
         free(curr);
-        curr = next;
+
+        curr = nextNode;
     }
-    
-    free(head);
-
-    
+    free(*head);
+    (*head) = NULL;
 }
-
 int main()
 {
-    nodeSLL* head = (nodeSLL*)calloc(1,sizeof(nodeSLL));
-    if(head == NULL) exit(0);
-
-    data data = {0};
-    int n;
-    (void)freopen("data.txt","r",stdin);
-    (void)scanf("%d",&n);
-    for(int i=0; i<n; ++i)
-    {
-        nodeSLL* newnode = NULL;
-        (void)scanf("%d %d", &data.id, &data.score);
-        newnode = Create_nodeSLL(&data);
-
-        if(newnode==NULL)
-        {
-            Free_nodeSLL(head);
-            head = NULL;
-            exit(0);
+    int input;
+    SLL* head = NULL;
+    init(&head);
+    while (1) {
+        printf("1.삽입 2.삭제 3.출력\n");
+        scanf("%d", &input);
+        switch (input) {
+        case 1: {
+            SLL* newnode = Create_SLL();
+            Append_SLL(head, newnode);
+            break;
         }
-        Append_nodeSLL(head,newnode);
+        case 2:
+            Delete_SLL(head);
+            break;
+        case 3:
+            Print_SLL(head);
+            break;
+        case -1:
+            destroy_SLL(&head);
+            return 0;
+        default:
+            break;
+        }
     }
-    Print_nodeSLL(head->next);
 
-   // Free_nodeSLL(head);
-   // head = NULL;
     return 0;
-}           
+}
